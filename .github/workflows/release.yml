@@ -1,0 +1,75 @@
+name: release
+
+# The larakube-ubuntu WSL distro that LaraKube Desktop imports on Windows.
+#   push to main (Dockerfile, wsl.conf, scripts) → `canary` prerelease, with the CLI's canary build in it
+#   every Monday                                  → the same, so Ubuntu security updates reach it
+#   manual, channel stable                        → a dated release (v2026.10.05) marked latest, with the CLI's latest stable
+# Desktop downloads releases/latest/download/larakube-ubuntu-amd64.tar.gz and checks the .sha256 next to it.
+on:
+  push:
+    branches: [main]
+    paths: [Dockerfile, wsl.conf, scripts/**, .github/workflows/release.yml]
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'canary, or stable for a dated release marked latest'
+        type: choice
+        options: [canary, stable]
+        default: canary
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CHANNEL: ${{ inputs.channel || 'canary' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Pick the CLI build and the release tag
+        id: target
+        run: |
+          if [ "$CHANNEL" = stable ]; then
+            cli="$(gh release view --repo luchavez-technologies/larakube-cli --json tagName -q .tagName)"
+            tag="v$(date -u +%Y.%m.%d)"
+          else
+            cli=canary
+            tag=canary
+          fi
+          echo "cli=$cli" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Build the root filesystem (amd64)
+        run: scripts/build.sh "${{ steps.target.outputs.cli }}" linux/amd64
+
+      - name: Check it the way Windows will use it
+        run: scripts/smoke.sh dist/larakube-ubuntu-amd64.tar.gz linux/amd64
+
+      - name: Size and checksum
+        run: |
+          ls -lh dist
+          cat dist/*.sha256
+
+      - name: Publish
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+          CLI: ${{ steps.target.outputs.cli }}
+        run: |
+          notes="Ubuntu 24.04 with the LaraKube CLI ($CLI), kubectl, OpenTofu, rootless Podman, ssh and git, for LaraKube Desktop to import as the larakube-ubuntu WSL distro on Windows. Not for manual download."
+          if [ "$CHANNEL" = stable ]; then
+            gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --latest --title "larakube-ubuntu $TAG" --notes "$notes"
+          else
+            gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --prerelease --title "larakube-ubuntu (canary)" --notes "$notes"
+          fi
+          gh release upload "$TAG" dist/* --clobber
