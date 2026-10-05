@@ -13,6 +13,8 @@ docker run --rm --platform "$platform" --user larakube larakube-rootfs:smoke /bi
     larakube --version | tail -1
     kubectl version --client | head -1
     tofu version | head -1
+    gh --version | head -1
+    k9s version --short | head -3
     podman --version
     git --version
     ssh -V
