@@ -24,5 +24,9 @@ docker run --rm --platform "$platform" --user larakube larakube-rootfs:smoke /bi
     grep -q "default=larakube" /etc/wsl.conf
     test -d /home/larakube/projects
     sudo -n true
+    # A user session (rootless Podman, k3s) needs these; without them user@1000.service fails on every start.
+    test -e /usr/lib/x86_64-linux-gnu/security/pam_systemd.so -o -e /usr/lib/aarch64-linux-gnu/security/pam_systemd.so
+    dpkg -s dbus-user-session >/dev/null
+    test "$(readlink /etc/systemd/system/kmod-static-nodes.service)" = /dev/null
     jq . /etc/larakube-rootfs.json
 '

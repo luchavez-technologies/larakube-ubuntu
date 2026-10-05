@@ -10,10 +10,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        systemd systemd-sysv dbus sudo ca-certificates curl git openssh-client unzip jq less locales tzdata \
+        systemd systemd-sysv libpam-systemd dbus dbus-user-session sudo ca-certificates curl git openssh-client unzip jq less locales tzdata \
         podman slirp4netns passt fuse-overlayfs uidmap iproute2 iptables \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+# The WSL kernel has no loadable modules, so this unit always fails and leaves the system "degraded".
+RUN ln -sf /dev/null /etc/systemd/system/kmod-static-nodes.service
 
 # The same sources the CLI itself installs from: the current stable kubectl, and OpenTofu's own installer.
 RUN set -eux; \
