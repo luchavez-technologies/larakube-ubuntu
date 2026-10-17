@@ -7,7 +7,7 @@ The Linux system that LaraKube Desktop imports on Windows as its own WSL distro,
 ## What is in it
 
 - Ubuntu 24.04, systemd on (`wsl.conf`)
-- The LaraKube CLI, kubectl and OpenTofu
+- The LaraKube CLI, kubectl, k3s and OpenTofu
 - The GitHub CLI (`gh`), Tea CLI (`tea`), and k9s (to inspect clusters)
 - Cloud provider CLIs: AWS CLI (`aws`) and Google Cloud SDK (`gcloud` + `gke-gcloud-auth-plugin`)
 - Rootless Podman, git, ssh and dnsmasq

@@ -66,7 +66,7 @@ jobs:
           TAG: ${{ steps.target.outputs.tag }}
           CLI: ${{ steps.target.outputs.cli }}
         run: |
-          notes="Ubuntu 24.04 with the LaraKube CLI ($CLI), kubectl, OpenTofu, AWS CLI, Google Cloud SDK, GitHub CLI, Tea CLI, rootless Podman, ssh and git, for LaraKube Desktop to import as the larakube-ubuntu WSL distro on Windows. Not for manual download."
+          notes="Ubuntu 24.04 with the LaraKube CLI ($CLI), kubectl, k3s, OpenTofu, AWS CLI, Google Cloud SDK, GitHub CLI, Tea CLI, rootless Podman, ssh and git, for LaraKube Desktop to import as the larakube-ubuntu WSL distro on Windows. Not for manual download."
           if [ "$CHANNEL" = stable ]; then
             gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --latest --title "larakube-ubuntu $TAG" --notes "$notes"
           else

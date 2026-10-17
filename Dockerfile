@@ -18,12 +18,13 @@ RUN apt-get update \
 # The WSL kernel has no loadable modules, so this unit always fails and leaves the system "degraded".
 RUN ln -sf /dev/null /etc/systemd/system/kmod-static-nodes.service
 
-# The same sources the CLI itself installs from: the current stable kubectl, and OpenTofu's own installer.
+# The same sources the CLI itself installs from: the current stable kubectl, k3s, and OpenTofu's own installer.
 RUN set -eux; \
     arch="$(dpkg --print-architecture)"; \
     version="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"; \
     curl -fsSL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/${version}/bin/linux/${arch}/kubectl"; \
     chmod +x /usr/local/bin/kubectl; \
+    curl -fsSL https://get.k3s.io | INSTALL_K3S_SKIP_START=true INSTALL_K3S_SKIP_ENABLE=true sh -s - --disable=traefik --write-kubeconfig-mode=644; \
     curl -fsSL https://get.opentofu.org/install-opentofu.sh -o /tmp/install-opentofu.sh; \
     sh /tmp/install-opentofu.sh --install-method standalone; \
     rm -f /tmp/install-opentofu.sh
@@ -83,9 +84,10 @@ COPY wsl.conf /etc/wsl.conf
 
 # What went in, for the setup screen and for bug reports.
 RUN set -eux; \
-    printf '{"larakube":"%s","kubectl":"%s","tofu":"%s","gh":"%s","tea":"%s","aws":"%s","gcloud":"%s","k9s":"%s","podman":"%s","base":"%s"}\n' \
+    printf '{"larakube":"%s","kubectl":"%s","k3s":"%s","tofu":"%s","gh":"%s","tea":"%s","aws":"%s","gcloud":"%s","k9s":"%s","podman":"%s","base":"%s"}\n' \
         "$(/usr/local/bin/larakube --version 2>/dev/null | tail -1 | tr -d '"')" \
         "$(kubectl version --client -o json | jq -r .clientVersion.gitVersion)" \
+        "$(k3s --version 2>/dev/null | awk 'NR==1 {print $3}')" \
         "$(tofu version -json | jq -r .terraform_version)" \
         "$(gh --version | awk 'NR==1 {print $3}')" \
         "$(tea --version 2>/dev/null | awk 'NR==1 {print $3}')" \

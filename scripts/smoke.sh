@@ -12,6 +12,7 @@ docker run --rm --platform "$platform" --user larakube larakube-rootfs:smoke /bi
     set -e
     larakube --version | tail -1
     kubectl version --client | head -1
+    k3s --version | head -1
     tofu version | head -1
     gh --version | head -1
     tea --version | head -1
