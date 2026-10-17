@@ -10,7 +10,7 @@ The Linux system that LaraKube Desktop imports on Windows as its own WSL distro,
 - The LaraKube CLI, kubectl and OpenTofu
 - The GitHub CLI (`gh`), Tea CLI (`tea`), and k9s (to inspect clusters)
 - Cloud provider CLIs: AWS CLI (`aws`) and Google Cloud SDK (`gcloud` + `gke-gcloud-auth-plugin`)
-- Rootless Podman, git and ssh
+- Rootless Podman, git, ssh and dnsmasq
 - A `larakube` login (UID 1000, no password), with a `projects` folder in its home
 - `/etc/larakube-rootfs.json` listing the versions that went in
 
