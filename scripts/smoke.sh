@@ -23,7 +23,6 @@ docker run --rm --platform "$platform" --user larakube larakube-rootfs:smoke /bi
     podman --version
     git --version
     ssh -V
-    dnsmasq --version | head -1
     test "$(id -un)" = larakube
     test "$(id -u)" = 1000
     grep -q "systemd=true" /etc/wsl.conf

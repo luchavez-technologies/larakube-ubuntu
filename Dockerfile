@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         systemd systemd-sysv libpam-systemd dbus dbus-user-session sudo ca-certificates curl git openssh-client unzip jq less locales tzdata gnupg \
-        podman slirp4netns passt fuse-overlayfs uidmap iproute2 iptables dnsmasq \
+        podman slirp4netns passt fuse-overlayfs uidmap iproute2 iptables \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
